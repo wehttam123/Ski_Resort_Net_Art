@@ -4,10 +4,10 @@ import java.util.*;
 import java.text.*;
 
 String name = "default"; //resort name
-String temp = "0";       //temperature
-String base = "0";       //base depth
-String snow = "0";       //new snow
-String wind = "0";       //wind speed
+float temp = 0;       //temperature
+float base = 0;       //base depth
+float snow = 0;       //new snow
+float wind = 0;       //wind speed
 
 DateFormat timeformat = new SimpleDateFormat("hh:mm aa"); 
 Date time = new Date();  //time of day
@@ -39,11 +39,11 @@ void setup() {
         }
         count++;
         if(count == 1){
-          snow = num.toString();
+          snow = Float.parseFloat(num.toString());
         } else if(count == 2){
-          base = num.toString();
+          base = Float.parseFloat(num.toString());
         } else if(count == 5){
-          temp = num.toString();
+          temp = (Float.parseFloat(num.toString())-32)*(0.6);
         }
       } else if(data.contains("Winds")){
         StringBuilder num = new StringBuilder();
@@ -56,7 +56,7 @@ void setup() {
             break; 
           }
         }
-        wind = num.toString();
+        wind = Float.parseFloat(num.toString())*1.6;
       } else if(data.contains("Sunrise")){
         sunrise = timeformat.parse(data.split(";")[1].substring(0,8));
         sunset = timeformat.parse(data.split(";")[3].substring(0,8));
@@ -76,10 +76,22 @@ void setup() {
   
   name = "Lake Louise";
   
-  size(800, 480);
-  System.out.println("name: " + name + " temp: " + temp + " base: " + base + " snow: " + snow + " wind: " + wind + " time: " + time + " sunset: " + sunset + " sunrise " + sunrise + " night: " + night);
+  width = 1280;
+  height = 720;
+  size(1280, 720);
 
 }
 
 void draw() {
+  if (night){
+    background(30,75,75);
+  } else {
+    background(100,230,255);
+  }
+  
+  String t = timeformat.format(time);
+  String sr = timeformat.format(sunrise);
+  String ss = timeformat.format(sunset);
+  text("Resort: " + name + "  Temperature: " + temp + "°C  Base: " + base + "\"  New Snow: " + snow + "\"  Wind Speed: " + wind + " kph  Time: " + t + "  Sunset: " + ss + "  Sunrise: " + sr
+  ,5,height-5);
 }
