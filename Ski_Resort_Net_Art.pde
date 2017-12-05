@@ -1,3 +1,5 @@
+/* @pjs preload="Mountains.png,Mountains night.png,Tree.png,Tree Night.png"; */
+
 import java.net.*;
 import java.io.*;
 import java.util.*;
@@ -9,10 +11,11 @@ PImage tree;
 PImage tree_night;
 
 String name = "default"; //resort name
-float temp = 0;       //temperature
-float base = 0;       //base depth
-float snow = 0;       //new snow
-float wind = 0;       //wind speed
+String resort = "lakelouise";
+float temp = 0.0;       //temperature
+float base = 0.0;       //base depth
+float snow = 0.0;       //new snow
+float wind = 0.0;       //wind speed
 
 DateFormat timeformat = new SimpleDateFormat("hh:mm aa"); 
 Date time = new Date();  //time of day
@@ -29,14 +32,19 @@ float [] y = new float[300];
 int [] size = new int[300];
 int [] direction = new int[300];
 
+
+String data;
+Boolean found = false;
+int count = 0;
+
+DecimalFormat format = new DecimalFormat(".#");
+
 void setup() {
+  
   
   try {
     URL url = new URL("http://www.snowcountry.com/resort-page/ab/lakelouise");
     BufferedReader input = new BufferedReader(new InputStreamReader(url.openStream()));
-    String data;
-    Boolean found = false;
-    int count = 0;
     
     while ((data = input.readLine()) != null){
       if(data.contains("huge")){
@@ -112,11 +120,7 @@ void setup() {
 }
 
 void draw() {
-  
-  wind = wind;
-  snow = snow;
-  night = night;
-  
+
   if (wind == 0){
     speed = 0;
     sway = 0;
@@ -134,19 +138,40 @@ void draw() {
   
     pushMatrix();
     translate(800,600);
-    rotate(radians(sway));
+    if (mouseX > 700 && mouseX < 900 && 
+       mouseY > 100 && mouseY < 600) {
+        sway = sway*10;
+        rotate(radians(sway));
+        sway = sway/10;
+      } else {
+        rotate(radians(sway));
+      }
     image(tree_night,-100,-400);
     popMatrix();
     
     pushMatrix();
     translate(1000,700);
-    rotate(radians(-sway));
+    if (mouseX > 900 && mouseX < 1100 && 
+       mouseY > 200 && mouseY < 700) {
+        sway = sway*10;
+        rotate(radians(-sway));
+        sway = sway/10;
+      } else {
+        rotate(radians(-sway));
+      }
     image(tree_night,-100,-400);
     popMatrix();
     
     pushMatrix();
     translate(1200,550);
-    rotate(radians(sway));
+    if (mouseX > 1100 && mouseX < 1300 && 
+       mouseY > 50 && mouseY < 550) {
+        sway = sway*10;
+        rotate(radians(sway));
+        sway = sway/10;
+      } else {
+        rotate(radians(sway));
+      }
     image(tree_night,-100,-400);
     popMatrix();
     
@@ -156,19 +181,40 @@ void draw() {
     
     pushMatrix();
     translate(800,600);
-    rotate(radians(sway));
+    if (mouseX > 700 && mouseX < 900 && 
+       mouseY > 100 && mouseY < 600) {
+        sway = sway*10;
+        rotate(radians(sway));
+        sway = sway/10;
+      } else {
+        rotate(radians(sway));
+      }
     image(tree,-100,-400);
     popMatrix();
     
     pushMatrix();
     translate(1000,700);
-    rotate(radians(-sway));
+    if (mouseX > 900 && mouseX < 1100 && 
+       mouseY > 100 && mouseY < 700) {
+        sway = sway*10;
+        rotate(radians(-sway));
+        sway = sway/10;
+      } else {
+        rotate(radians(-sway));
+      }
     image(tree,-100,-400);
     popMatrix();
     
     pushMatrix();
     translate(1200,550);
-    rotate(radians(sway));
+    if (mouseX > 1100 && mouseX < 1300 && 
+       mouseY > 50 && mouseY < 500) {
+        sway = sway*10;
+        rotate(radians(sway));
+        sway = sway/10;
+      } else {
+        rotate(radians(sway));
+      }
     image(tree,-100,-400);
     popMatrix();
   }
@@ -213,11 +259,113 @@ void draw() {
     
   }
   }
-  
   String t = timeformat.format(time);
   String sr = timeformat.format(sunrise);
   String ss = timeformat.format(sunset);
   fill(0);
-  text("Resort: " + name + "  Temperature: " + temp + "°C  Base: " + base + "\"  New Snow: " + snow + "\"  Wind Speed: " + wind + " kph  Time: " + t + "  Sunset: " + ss + "  Sunrise: " + sr
+  text("Resort: " + name + "  Temperature: " + format.format(temp) + "°C  Base: " + format.format(base) + "\"  New Snow: " + format.format(snow) + "\"  Wind Speed: " + format.format(wind) + " kph  Time: " + t + "  Sunset: " + ss + "  Sunrise: " + sr
   ,5,height-5);
+}
+
+void mouseClicked(){
+  
+  if (mouseX > 0 && mouseX < 130 && 
+      mouseY > height-20 && mouseY < height) {
+        
+        if (resort.equals("ab/lakelouise")){
+            resort = "bc/ferniealpine";
+            name = "Fernie         ";
+          } else if (resort.equals("bc/ferniealpine")) {
+            resort = "ab/sunshinevillage";
+            name = "Sunshine    ";
+          } else {
+            resort = "ab/lakelouise";
+            name = "Lake Louise";
+          }
+        
+         try {
+          URL url = new URL("http://www.snowcountry.com/resort-page/" + resort);
+          BufferedReader input = new BufferedReader(new InputStreamReader(url.openStream()));
+          
+          found = false;
+          count = 0;
+    
+          while ((data = input.readLine()) != null){
+            if(data.contains("huge")){
+              StringBuilder num = new StringBuilder();
+              found = false;
+              for(char c : data.toCharArray()){ 
+                if(Character.isDigit(c)){ 
+                  num.append(c); 
+                  found = true;
+                } else if(found){
+                  break; 
+                }
+              }
+              count++;
+              if(count == 1){
+                snow = Float.parseFloat(num.toString());
+              } else if(count == 2){
+                base = Float.parseFloat(num.toString());
+              } else if(count == 5){
+                temp = (Float.parseFloat(num.toString())-32)*(0.6);
+              }
+             } else if(data.contains("Winds")){
+              StringBuilder num = new StringBuilder();
+              found = false;
+              for(char c : data.toCharArray()){ 
+                if(Character.isDigit(c)){ 
+                  num.append(c); 
+                  found = true;
+                } else if(found){
+                  break; 
+                }
+              }
+              wind = Float.parseFloat(num.toString())*1.6;
+            } else if(data.contains("Sunrise")){
+              sunrise = timeformat.parse(data.split(";")[1].substring(0,8));
+              sunset = timeformat.parse(data.split(";")[3].substring(0,8));
+            }
+          }
+          input.close();
+          time = timeformat.parse(timeformat.format(time.getTime()));
+        } catch(Exception e) {
+          e.printStackTrace();
+        }
+  
+        if (time.after(sunrise)){
+          if (time.before(sunset)){
+            night = false;
+          }
+        }
+  
+  }
+    if (mouseX > 335 && mouseX < 335+100 && 
+      mouseY > height-20 && mouseY < height) {
+          if (snow == 0.0){
+            snow = 1;
+          } else if (snow < 10.0) {
+            snow = 10;
+          } else {
+            snow = 0;
+          }
+  }
+    if (mouseX > 440 && mouseX < 440+125 && 
+      mouseY > height-20 && mouseY < height) {
+          if (wind == 0.0){
+            wind = 1;
+          } else if (wind < 10.0) {
+            wind = 10;
+          } else {
+            wind = 0;
+          }
+  }
+    if (mouseX > 570 && mouseX < 570+100 && 
+      mouseY > height-20 && mouseY < height) {
+          if (night) {
+            night = false;
+          } else {
+            night = true;
+          }
+  }
 }
